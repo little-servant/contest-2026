@@ -92,3 +92,39 @@ export function parseXmlList(xml: string, itemTag = "itemList") {
 
   return items;
 }
+
+export async function fetchWithTimeout(
+  input: string | URL | Request,
+  init?: RequestInit,
+  timeoutMs = 10000,
+) {
+  const controller = new AbortController();
+  const timerId = setTimeout(() => {
+    controller.abort();
+  }, timeoutMs);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timerId);
+  }
+}
+
+export async function safeJson(response: Response): Promise<Record<string, unknown>> {
+  const text = await response.text();
+  if (!text.trim()) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(text);
+    return typeof parsed === "object" && parsed !== null
+      ? (parsed as Record<string, unknown>)
+      : {};
+  } catch {
+    return {};
+  }
+}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { BackButton } from "@/components/BackButton";
 import { BusArrival } from "@/components/BusArrival";
 import { TransitStatus } from "@/components/TransitStatus";
@@ -14,16 +15,7 @@ export default async function RoutePage({
   const facility = await loadFacilityById(id);
 
   if (!facility) {
-    return (
-      <main className="mx-auto flex min-h-screen max-w-4xl items-center justify-center px-4 py-10">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-          <p className="text-lg font-semibold text-slate-950">기관을 찾을 수 없습니다.</p>
-          <Link href="/" className="mt-4 inline-block text-sm font-medium underline">
-            홈으로 돌아가기
-          </Link>
-        </div>
-      </main>
-    );
+    notFound();
   }
 
   const hasStdgCd = Boolean(facility.stdgCd?.trim());

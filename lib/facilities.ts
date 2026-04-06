@@ -41,7 +41,17 @@ function toCoordinate(value?: string | number) {
     typeof value === "number"
       ? value
       : Number.parseFloat(value ?? "");
-  return Number.isFinite(parsed) ? parsed : 0;
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function isValidCoordinatePair(lat: number, lng: number) {
+  return (
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    Math.abs(lat) <= 90 &&
+    Math.abs(lng) <= 180 &&
+    !(lat === 0 && lng === 0)
+  );
 }
 
 function normalizeRegionToken(token?: string) {
@@ -77,29 +87,42 @@ function normalizeCoordinates(item: ChildCareItem) {
   const rawLat = toCoordinate(item.lat);
   const rawLot = toCoordinate(item.lot);
 
+  if (rawLat == null || rawLot == null) {
+    return null;
+  }
+
   // 아이돌봄 원본 응답은 lat/lot 값이 문서 설명과 반대로 내려오는 케이스가 존재한다.
   if (Math.abs(rawLat) > 90 && Math.abs(rawLot) <= 90) {
-    return {
-      lat: rawLot,
-      lng: rawLat,
-    };
+    if (!isValidCoordinatePair(rawLot, rawLat)) {
+      return null;
+    }
+
+    return { lat: rawLot, lng: rawLat };
+  }
+
+  if (!isValidCoordinatePair(rawLat, rawLot)) {
+    return null;
+  }
+
+  return { lat: rawLat, lng: rawLot };
+}
+
+function normalizeChildCareItem(item: ChildCareItem): Facility | null {
+  const coordinates = normalizeCoordinates(item);
+  const id = item.childCareInstNo?.trim() ?? "";
+  const name = item.childCareInstNm?.trim() ?? "";
+
+  if (!id || !name || !coordinates) {
+    return null;
   }
 
   return {
-    lat: rawLat,
-    lng: rawLot,
-  };
-}
-
-function normalizeChildCareItem(item: ChildCareItem): Facility {
-  const coordinates = normalizeCoordinates(item);
-  return {
-    id: item.childCareInstNo ?? "",
-    name: item.childCareInstNm ?? "",
-    address: item.addr ?? "",
+    id,
+    name,
+    address: item.addr?.trim() ?? "",
     lat: coordinates.lat,
     lng: coordinates.lng,
-    phone: item.rprsTelno,
+    phone: item.rprsTelno?.trim(),
     stdgCd: inferStdgCd(item),
     source: "child-care-api",
   };
@@ -137,7 +160,18 @@ async function fetchFacilitiesFromApi(apiKey: string, id?: string): Promise<Faci
       ? [rawItems as ChildCareItem]
       : [];
 
-  return items.map(normalizeChildCareItem);
+  const normalized = items
+    .map(normalizeChildCareItem)
+    .filter((item): item is Facility => item !== null);
+
+  const deduped = new Map<string, Facility>();
+  for (const item of normalized) {
+    if (!deduped.has(item.id)) {
+      deduped.set(item.id, item);
+    }
+  }
+
+  return Array.from(deduped.values());
 }
 
 export async function loadFacilities(id?: string): Promise<{

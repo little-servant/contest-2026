@@ -3,7 +3,9 @@ import {
   PUBLIC_DATA_BASE_URL,
   asArray,
   buildUrl,
+  fetchWithTimeout,
   getPublicDataKey,
+  safeJson,
   toNumber,
 } from "@/lib/api";
 import type { ApiErrorBody, TransitApiResponse, TransitVehicleStatus } from "@/lib/types";
@@ -29,8 +31,8 @@ export async function GET(request: Request) {
       stdgCd,
     });
 
-    const response = await fetch(apiUrl, { cache: "no-store" });
-    const payload = (await response.json()) as unknown;
+    const response = await fetchWithTimeout(apiUrl, { cache: "no-store" }, 10_000);
+    const payload = await safeJson(response);
     const payloadRecord =
       typeof payload === "object" && payload !== null
         ? (payload as Record<string, unknown>)

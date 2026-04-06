@@ -3,7 +3,9 @@ import {
   NATIONAL_BUS_BASE_URL,
   asArray,
   buildUrl,
+  fetchWithTimeout,
   getPublicDataKey,
+  safeJson,
 } from "@/lib/api";
 import type {
   ApiErrorBody,
@@ -39,12 +41,12 @@ export async function GET(request: Request) {
     };
 
     const [routeRes, locRes] = await Promise.all([
-      fetch(buildUrl(NATIONAL_BUS_BASE_URL, "/mst_info", commonParams), {
+      fetchWithTimeout(buildUrl(NATIONAL_BUS_BASE_URL, "/mst_info", commonParams), {
         cache: "no-store",
-      }),
-      fetch(buildUrl(NATIONAL_BUS_BASE_URL, "/rtm_loc_info", commonParams), {
+      }, 10_000),
+      fetchWithTimeout(buildUrl(NATIONAL_BUS_BASE_URL, "/rtm_loc_info", commonParams), {
         cache: "no-store",
-      }),
+      }, 10_000),
     ]);
 
     if (!routeRes.ok && !locRes.ok) {
@@ -57,13 +59,55 @@ export async function GET(request: Request) {
       );
     }
 
-    const routeJson = routeRes.ok ? await routeRes.json() : {};
-    const locJson = locRes.ok ? await locRes.json() : {};
-    const routeRoot = routeJson?.response ?? routeJson;
-    const locRoot = locJson?.response ?? locJson;
+    const routeJson = routeRes.ok ? await safeJson(routeRes) : {};
+    const locJson = locRes.ok ? await safeJson(locRes) : {};
+    const routeRootCandidate =
+      typeof routeJson.response === "object" && routeJson.response !== null
+        ? routeJson.response
+        : routeJson;
+    const locRootCandidate =
+      typeof locJson.response === "object" && locJson.response !== null
+        ? locJson.response
+        : locJson;
+    const routeRoot =
+      typeof routeRootCandidate === "object" && routeRootCandidate !== null
+        ? (routeRootCandidate as Record<string, unknown>)
+        : {};
+    const locRoot =
+      typeof locRootCandidate === "object" && locRootCandidate !== null
+        ? (locRootCandidate as Record<string, unknown>)
+        : {};
+    const routeBody =
+      typeof routeRoot.body === "object" && routeRoot.body !== null
+        ? (routeRoot.body as Record<string, unknown>)
+        : {};
+    const routeNestedItems =
+      typeof routeBody.items === "object" && routeBody.items !== null
+        ? (routeBody.items as Record<string, unknown>)
+        : {};
+    const routeRawItems =
+      typeof routeBody.item === "object" && routeBody.item !== null
+        ? routeBody.item
+        : typeof routeNestedItems.item === "object" && routeNestedItems.item !== null
+          ? routeNestedItems.item
+          : undefined;
+    const locBody =
+      typeof locRoot.body === "object" && locRoot.body !== null
+        ? (locRoot.body as Record<string, unknown>)
+        : {};
+    const locNestedItems =
+      typeof locBody.items === "object" && locBody.items !== null
+        ? (locBody.items as Record<string, unknown>)
+        : {};
+    const locRawItems =
+      typeof locBody.item === "object" && locBody.item !== null
+        ? locBody.item
+        : typeof locNestedItems.item === "object" && locNestedItems.item !== null
+          ? locNestedItems.item
+          : undefined;
 
     const routeItems: BusRouteItem[] = asArray<Record<string, string>>(
-      routeRoot?.body?.item ?? routeRoot?.body?.items?.item ?? [],
+      routeRawItems as Record<string, string> | Record<string, string>[] | undefined,
     ).map((item) => ({
       rteNo: item.rteNo,
       rteType: item.rteType,
@@ -74,7 +118,7 @@ export async function GET(request: Request) {
     }));
 
     const locationItems: BusLocationItem[] = asArray<Record<string, string>>(
-      locRoot?.body?.item ?? locRoot?.body?.items?.item ?? [],
+      locRawItems as Record<string, string> | Record<string, string>[] | undefined,
     ).map((item) => ({
       rteNo: item.rteNo,
       vhclNo: item.vhclNo,
