@@ -39,7 +39,7 @@ export default async function RoutePage({
         </p>
         <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold text-slate-950">{facility.name}</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-950">{facility.name}</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
               선택 기관 기준으로 교통약자 차량 현황과 전국 초정밀 버스 위치 정보를 병렬로 보여줍니다.
             </p>
@@ -53,7 +53,7 @@ export default async function RoutePage({
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm">
           <p className="text-sm font-semibold text-slate-500">기관 정보</p>
-          <div className="mt-4 space-y-3 text-sm text-slate-700">
+          <div className="mt-4 space-y-3 text-sm leading-relaxed text-slate-600">
             <p>{facility.address}</p>
             <p>{facility.phone ?? "연락처 미정"}</p>
             <p>{facility.hours ?? "운영시간 미정"}</p>

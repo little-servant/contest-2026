@@ -72,7 +72,7 @@ export default function HomePage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <section className="animate-enter overflow-hidden rounded-[2rem] border border-black/5 bg-[linear-gradient(135deg,#ffffff_0%,#f4f8ff_40%,#edf7f3_100%)] p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] sm:p-8">
+      <section className="animate-enter overflow-hidden rounded-[2rem] border border-black/5 bg-[linear-gradient(135deg,#ffffff_0%,#ecfdf5_40%,#e6f4f1_100%)] p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
           CarePass
         </p>
