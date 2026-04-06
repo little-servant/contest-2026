@@ -14,8 +14,8 @@ declare global {
           setCenter: (center: unknown) => void;
           setLevel: (level: number) => void;
           relayout: () => void;
-          setRotation: (angle: number) => void;
-          getRotation: () => number;
+          setRotation?: (angle: number) => void;
+          getRotation?: () => number;
         };
         LatLng: new (lat: number, lng: number) => unknown;
         Marker: new (options: Record<string, unknown>) => {
@@ -57,8 +57,8 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
     setCenter: (center: unknown) => void;
     setLevel: (level: number) => void;
     relayout: () => void;
-    setRotation: (angle: number) => void;
-    getRotation: () => number;
+    setRotation?: (angle: number) => void;
+    getRotation?: () => number;
   } | null>(null);
   const relayoutObserverRef = useRef<ResizeObserver | null>(null);
   const markersRef = useRef<
@@ -79,6 +79,25 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
   const statusRef = useRef<MapStatus>("loading");
   const rotationRef = useRef<number>(0);
   const gestureRef = useRef<{ initialAngle: number; initialRotation: number } | null>(null);
+
+  const applyRotation = (angle: number) => {
+    rotationRef.current = angle;
+
+    if (mapRef.current && typeof mapRef.current.setRotation === "function") {
+      mapRef.current.setRotation(angle);
+      if (ref.current) {
+        ref.current.style.transform = "";
+        ref.current.style.transformOrigin = "";
+      }
+      return;
+    }
+
+    // Fallback for environments where Kakao Map rotation API is unavailable.
+    if (ref.current) {
+      ref.current.style.transform = `rotate(${angle}deg)`;
+      ref.current.style.transformOrigin = "50% 50%";
+    }
+  };
 
   useEffect(() => {
     statusRef.current = status;
@@ -174,6 +193,8 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
       } else {
         mapRef.current.setCenter(center);
       }
+
+      applyRotation(rotationRef.current);
 
       markerImagesRef.current = {
         active: new kakao.MarkerImage(
@@ -348,9 +369,15 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
 
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length !== 2) return;
+
+      const currentRotation =
+        mapRef.current && typeof mapRef.current.getRotation === "function"
+          ? mapRef.current.getRotation()
+          : rotationRef.current;
+
       gestureRef.current = {
         initialAngle: getTouchAngle(e.touches),
-        initialRotation: rotationRef.current,
+        initialRotation: Number(currentRotation) || 0,
       };
     };
 
@@ -358,8 +385,7 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
       if (e.touches.length !== 2 || !gestureRef.current || !mapRef.current) return;
       const delta = getTouchAngle(e.touches) - gestureRef.current.initialAngle;
       const newRotation = gestureRef.current.initialRotation + delta;
-      rotationRef.current = newRotation;
-      mapRef.current.setRotation(newRotation);
+      applyRotation(newRotation);
     };
 
     const onTouchEnd = () => {
