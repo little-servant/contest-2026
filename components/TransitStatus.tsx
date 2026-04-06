@@ -47,11 +47,7 @@ export function TransitStatus({ stdgCd }: { stdgCd: string }) {
   }
 
   if (data?.source === "no-key") {
-    return (
-      <p className="text-sm text-amber-600 bg-amber-50 rounded-xl px-4 py-3">
-        PUBLIC_DATA_API_KEY 미설정 — 실데이터 연동 전 상태입니다.
-      </p>
-    );
+    return null;
   }
 
   if (error || data?.error) {

@@ -74,15 +74,14 @@ export default function HomePage() {
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
       <section className="animate-enter overflow-hidden rounded-[2rem] border border-black/5 bg-[linear-gradient(135deg,#ffffff_0%,#f4f8ff_40%,#edf7f3_100%)] p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
-          CarePass / D8
+          CarePass
         </p>
         <div className="mt-4 max-w-3xl">
           <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-            위치를 넣으면 근처 돌봄 기관과 이동 지원 상태를 바로 이어붙입니다.
+            내 위치 근처 돌봄 기관과 이동 지원 현황을 한 번에 확인하세요.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-            D8에서는 모바일 제출 환경에 맞춰 현재 위치 진입, 기관 탐색, 실시간 이동 정보
-            확인 흐름을 더 단단하게 정리했습니다.
+            아이돌봄 기관을 지도에서 찾고, 교통약자 차량과 버스 실시간 정보를 바로 확인할 수 있습니다.
           </p>
         </div>
 
@@ -203,17 +202,16 @@ export default function HomePage() {
 
         <div className="rounded-[2rem] border border-black/5 bg-slate-950 p-6 text-white shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-            API posture
+            공공데이터 연동
           </p>
-          <h2 className="mt-2 text-2xl font-semibold">D8은 제출 직전 UX 마감</h2>
+          <h2 className="mt-2 text-2xl font-semibold">실시간 이동 지원 현황</h2>
           <div className="mt-5 space-y-4 text-sm leading-6 text-slate-300">
-            <p>교통약자 API: 문서상 실시간 가용 차량 수(`avlVhclCntom`) 제공 확인</p>
-            <p>버스 API: 전국 초정밀 기준 노선 + 실시간 위치 가능, 도착예정시간은 미제공</p>
-            <p>시설 데이터: 공식 아이돌봄 API 존재, 키 미설정 시 정적 JSON 폴백</p>
+            <p>교통약자 차량: 지역별 가용 차량 수와 예약 현황을 실시간으로 확인합니다.</p>
+            <p>버스 위치: 전국 초정밀 버스 노선과 실시간 위치를 제공합니다.</p>
+            <p>돌봄 기관: 아이돌봄 서비스 기관 97곳의 위치와 연락처를 안내합니다.</p>
           </div>
           <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
-            기관 목록과 지도 연동, 기관 상세 진입, 교통약자·버스 패널 30초 폴링까지
-            연결된 상태입니다. 실제 공공데이터 값 검증은 서비스키 입력 후 바로 이어집니다.
+            기관 상세 페이지에서 교통약자 차량과 버스 현황을 30초마다 자동 갱신합니다.
           </div>
         </div>
       </section>

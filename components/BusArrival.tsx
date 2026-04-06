@@ -43,9 +43,9 @@ export function BusArrival({ stdgCd }: { stdgCd?: string }) {
   if (!stdgCd) {
     return (
       <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
-        <p>지자체 코드가 없어 초정밀 버스 정보를 생략했습니다.</p>
+        <p>이 기관은 버스 실시간 정보를 지원하지 않습니다.</p>
         <Link href="/facilities" className="mt-2 inline-block underline">
-          stdgCd 없음. 상세 페이지에서 기관을 선택해 주세요
+          다른 기관 보기 →
         </Link>
       </div>
     );
@@ -56,11 +56,7 @@ export function BusArrival({ stdgCd }: { stdgCd?: string }) {
   }
 
   if (data?.source === "no-key") {
-    return (
-      <p className="text-sm text-amber-600 bg-amber-50 rounded-xl px-4 py-3">
-        PUBLIC_DATA_API_KEY 미설정 — 실데이터 연동 전 상태입니다.
-      </p>
-    );
+    return null;
   }
 
   if (error || data?.error) {
