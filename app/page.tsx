@@ -71,7 +71,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
+    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <section className="animate-enter overflow-hidden rounded-[2rem] border border-black/5 bg-[linear-gradient(135deg,#ffffff_0%,#f4f8ff_40%,#edf7f3_100%)] p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
           CarePass
@@ -143,7 +143,7 @@ export default function HomePage() {
       </section>
 
       <section className="animate-enter-1 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-[2rem] border border-black/5 bg-white p-6 shadow-sm">
+        <div className="rounded-[2rem] border border-slate-100/80 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
@@ -158,7 +158,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="mt-5 h-[50dvh] min-h-[320px] rounded-[2rem] border border-slate-200 bg-slate-50 p-4">
+          <div className="mt-5 h-[50dvh] min-h-[320px] rounded-[2rem] border border-slate-200 bg-white p-4">
             {geoLoading ? (
               <div className="flex flex-col gap-3">
                 <Skeleton className="h-16 rounded-2xl" />

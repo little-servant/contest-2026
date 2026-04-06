@@ -139,7 +139,7 @@ export default function FacilitiesPage() {
                   key={facility.id}
                   className={`rounded-3xl border p-4 transition ${
                     isActive
-                      ? "border-slate-950 bg-slate-50"
+                      ? "border-slate-950 bg-white"
                       : "border-slate-200 bg-white hover:border-slate-400"
                   }`}
                 >

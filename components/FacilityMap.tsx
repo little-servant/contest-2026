@@ -14,6 +14,8 @@ declare global {
           setCenter: (center: unknown) => void;
           setLevel: (level: number) => void;
           relayout: () => void;
+          setRotation: (angle: number) => void;
+          getRotation: () => number;
         };
         LatLng: new (lat: number, lng: number) => unknown;
         Marker: new (options: Record<string, unknown>) => {
@@ -55,6 +57,8 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
     setCenter: (center: unknown) => void;
     setLevel: (level: number) => void;
     relayout: () => void;
+    setRotation: (angle: number) => void;
+    getRotation: () => number;
   } | null>(null);
   const relayoutObserverRef = useRef<ResizeObserver | null>(null);
   const markersRef = useRef<
@@ -72,6 +76,8 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
   const [fallbackReason, setFallbackReason] = useState(
     "Kakao 지도 SDK를 불러오는 중입니다.",
   );
+  const rotationRef = useRef<number>(0);
+  const gestureRef = useRef<{ initialAngle: number; initialRotation: number } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -207,7 +213,7 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
               `Kakao 지도 인증 실패: 도메인(${window.location.hostname}) 또는 앱키를 확인하세요.`,
             );
           }
-        }, 3000);
+        }, 6000);
 
         kakao.load(() => {
           window.__kakaoMapsReady = true;
@@ -228,40 +234,51 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
       return true;
     };
 
+    const clearTimers = () => {
+      if (pollId) window.clearInterval(pollId);
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
+
+    const onSdkLoaded = () => {
+      clearTimers();
+      if (!cancelled) boot();
+    };
+
+    const onSdkError = () => {
+      clearTimers();
+      if (!cancelled) setFallback("Kakao 지도 SDK를 불러오지 못했습니다. 네트워크를 확인하세요.");
+    };
+
+    window.addEventListener("kakao-sdk-loaded", onSdkLoaded, { once: true });
+    window.addEventListener("kakao-sdk-error", onSdkError, { once: true });
+
     if (window.kakao?.maps) {
       boot();
     } else {
       pollId = window.setInterval(() => {
         if (window.kakao?.maps) {
-          if (pollId) {
-            window.clearInterval(pollId);
-          }
-          if (timeoutId) {
-            window.clearTimeout(timeoutId);
-          }
+          clearTimers();
+          window.removeEventListener("kakao-sdk-loaded", onSdkLoaded);
+          window.removeEventListener("kakao-sdk-error", onSdkError);
           boot();
         }
       }, 250);
 
       timeoutId = window.setTimeout(() => {
-        if (pollId) {
-          window.clearInterval(pollId);
-        }
-        setFallback("Kakao 지도 SDK를 불러오지 못했습니다.");
-      }, 5000);
+        if (pollId) window.clearInterval(pollId);
+        window.removeEventListener("kakao-sdk-loaded", onSdkLoaded);
+        window.removeEventListener("kakao-sdk-error", onSdkError);
+        if (!cancelled) setFallback("Kakao 지도 SDK를 불러오지 못했습니다.");
+      }, 10000);
     }
 
     return () => {
       cancelled = true;
-      if (pollId) {
-        window.clearInterval(pollId);
-      }
-      if (timeoutId) {
-        window.clearTimeout(timeoutId);
-      }
-      if (loadGuardId) {
-        window.clearTimeout(loadGuardId);
-      }
+      if (pollId) window.clearInterval(pollId);
+      if (timeoutId) window.clearTimeout(timeoutId);
+      if (loadGuardId) window.clearTimeout(loadGuardId);
+      window.removeEventListener("kakao-sdk-loaded", onSdkLoaded);
+      window.removeEventListener("kakao-sdk-error", onSdkError);
       cleanupRelayoutObserver();
       cleanupMarkers();
     };
@@ -293,6 +310,48 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
     mapRef.current.setLevel(activeId ? 6 : 7);
   }, [activeId, facilities, status]);
 
+  // Two-finger rotation gesture
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || status !== "ready") return;
+
+    const getTouchAngle = (touches: TouchList) => {
+      const dx = touches[1].clientX - touches[0].clientX;
+      const dy = touches[1].clientY - touches[0].clientY;
+      return Math.atan2(dy, dx) * (180 / Math.PI);
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 2) return;
+      gestureRef.current = {
+        initialAngle: getTouchAngle(e.touches),
+        initialRotation: rotationRef.current,
+      };
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length !== 2 || !gestureRef.current || !mapRef.current) return;
+      const delta = getTouchAngle(e.touches) - gestureRef.current.initialAngle;
+      const newRotation = gestureRef.current.initialRotation + delta;
+      rotationRef.current = newRotation;
+      mapRef.current.setRotation(newRotation);
+    };
+
+    const onTouchEnd = () => {
+      gestureRef.current = null;
+    };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: true });
+    el.addEventListener("touchend", onTouchEnd);
+
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [status]);
+
   const visibleFacilities =
     status === "fallback" ? facilities.slice(0, 5) : facilities;
 
@@ -301,17 +360,17 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
       <div className="relative h-[50dvh] min-h-[320px]">
         <div
           ref={ref}
-          className="w-full bg-[linear-gradient(135deg,#e7eef6,#f8fafc)]"
+          className="w-full bg-[linear-gradient(135deg,#f0fdf9,#f8faf7)]"
           style={{ height: "50dvh", minHeight: "320px" }}
         />
         {status === "ready" ? null : (
-          <div className="absolute inset-0 flex h-[50dvh] min-h-[320px] w-full flex-col justify-between bg-[linear-gradient(135deg,#edf2f7,#f8fafc)] p-5">
+          <div className="absolute inset-0 flex h-[50dvh] min-h-[320px] w-full flex-col justify-between bg-[linear-gradient(135deg,#f0fdf9,#f8faf7)] p-5">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                 Facility Map
               </p>
               <h2 className="mt-3 text-2xl font-semibold text-slate-950">
-                {status === "fallback" ? "지도 대신 목록으로 확인" : "지도 불러오는 중"}
+                {status === "fallback" ? "지도 대신 목록으로 확인" : "주변 돌봄 기관을 찾고 있습니다..."}
               </h2>
               <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600">
                 {status === "fallback"

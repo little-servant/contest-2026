@@ -30,7 +30,7 @@ export default async function RoutePage({
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <header className="rounded-[2rem] border border-black/5 bg-white p-6 shadow-sm">
+      <header className="rounded-[2rem] border border-slate-100/80 bg-white p-6 shadow-sm">
         <div className="mb-4">
           <BackButton />
         </div>
@@ -51,7 +51,7 @@ export default async function RoutePage({
       </header>
 
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-[2rem] border border-black/5 bg-white p-6 shadow-sm">
+        <div className="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm">
           <p className="text-sm font-semibold text-slate-500">기관 정보</p>
           <div className="mt-4 space-y-3 text-sm text-slate-700">
             <p>{facility.address}</p>
