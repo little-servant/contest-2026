@@ -76,14 +76,19 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
   const [fallbackReason, setFallbackReason] = useState(
     "Kakao 지도 SDK를 불러오는 중입니다.",
   );
+  const statusRef = useRef<MapStatus>("loading");
   const rotationRef = useRef<number>(0);
   const gestureRef = useRef<{ initialAngle: number; initialRotation: number } | null>(null);
 
   useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
+
+  useEffect(() => {
     let cancelled = false;
-    let pollId: number | undefined;
-    let timeoutId: number | undefined;
+    let recoveryId: number | undefined;
     let loadGuardId: number | undefined;
+    let loadInFlight = false;
 
     const cleanupRelayoutObserver = () => {
       relayoutObserverRef.current?.disconnect();
@@ -97,6 +102,11 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
       markersRef.current = [];
     };
 
+    const setMapStatus = (nextStatus: MapStatus) => {
+      statusRef.current = nextStatus;
+      setStatus(nextStatus);
+    };
+
     const setFallback = (message: string) => {
       if (cancelled) {
         return;
@@ -105,7 +115,7 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
       cleanupRelayoutObserver();
       cleanupMarkers();
       mapRef.current = null;
-      setStatus("fallback");
+      setMapStatus("fallback");
       setFallbackReason(message);
     };
 
@@ -147,6 +157,12 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
               }
             });
             relayoutObserverRef.current.observe(mapNode);
+          } else {
+            window.setTimeout(() => {
+              if (!cancelled) {
+                initMap();
+              }
+            }, 250);
           }
           return; // markers will be added once ResizeObserver fires
         }
@@ -193,7 +209,7 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
         markersRef.current.push({ id: facility.id, marker });
       }
 
-      setStatus("ready");
+      setMapStatus("ready");
     };
 
     const boot = () => {
@@ -206,18 +222,30 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
         // SDK already initialized — skip kakao.maps.load to avoid missed callback
         initMap();
       } else if (typeof kakao.load === "function") {
+        if (loadInFlight) {
+          return true;
+        }
+
+        loadInFlight = true;
         let loadFired = false;
+        if (loadGuardId) {
+          window.clearTimeout(loadGuardId);
+          loadGuardId = undefined;
+        }
+
         loadGuardId = window.setTimeout(() => {
           if (!loadFired && !cancelled) {
+            loadInFlight = false;
             setFallback(
-              `Kakao 지도 인증 실패: 도메인(${window.location.hostname}) 또는 앱키를 확인하세요.`,
+              "지도 연결이 지연되고 있습니다. 자동으로 다시 시도합니다.",
             );
           }
-        }, 6000);
+        }, 7000);
 
         kakao.load(() => {
           window.__kakaoMapsReady = true;
           loadFired = true;
+          loadInFlight = false;
           if (loadGuardId) {
             window.clearTimeout(loadGuardId);
             loadGuardId = undefined;
@@ -234,49 +262,46 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
       return true;
     };
 
-    const clearTimers = () => {
-      if (pollId) window.clearInterval(pollId);
-      if (timeoutId) window.clearTimeout(timeoutId);
-    };
-
     const onSdkLoaded = () => {
-      clearTimers();
-      if (!cancelled) boot();
+      if (!cancelled) {
+        boot();
+      }
     };
 
     const onSdkError = () => {
-      clearTimers();
-      if (!cancelled) setFallback("Kakao 지도 SDK를 불러오지 못했습니다. 네트워크를 확인하세요.");
+      if (!cancelled) {
+        loadInFlight = false;
+        if (loadGuardId) {
+          window.clearTimeout(loadGuardId);
+          loadGuardId = undefined;
+        }
+        setFallback("Kakao 지도 연결이 불안정합니다. 자동으로 다시 시도합니다.");
+      }
     };
 
-    window.addEventListener("kakao-sdk-loaded", onSdkLoaded, { once: true });
-    window.addEventListener("kakao-sdk-error", onSdkError, { once: true });
+    window.addEventListener("kakao-sdk-loaded", onSdkLoaded);
+    window.addEventListener("kakao-sdk-error", onSdkError);
 
-    if (window.kakao?.maps) {
-      boot();
-    } else {
-      pollId = window.setInterval(() => {
-        if (window.kakao?.maps) {
-          clearTimers();
-          window.removeEventListener("kakao-sdk-loaded", onSdkLoaded);
-          window.removeEventListener("kakao-sdk-error", onSdkError);
-          boot();
+    boot();
+
+    recoveryId = window.setInterval(() => {
+      if (!cancelled && statusRef.current !== "ready") {
+        const didBoot = boot();
+        if (!didBoot) {
+          setFallback("지도 SDK를 기다리고 있습니다. 자동으로 다시 연결합니다.");
         }
-      }, 250);
-
-      timeoutId = window.setTimeout(() => {
-        if (pollId) window.clearInterval(pollId);
-        window.removeEventListener("kakao-sdk-loaded", onSdkLoaded);
-        window.removeEventListener("kakao-sdk-error", onSdkError);
-        if (!cancelled) setFallback("Kakao 지도 SDK를 불러오지 못했습니다.");
-      }, 10000);
-    }
+      }
+    }, 1500);
 
     return () => {
       cancelled = true;
-      if (pollId) window.clearInterval(pollId);
-      if (timeoutId) window.clearTimeout(timeoutId);
-      if (loadGuardId) window.clearTimeout(loadGuardId);
+      if (recoveryId) {
+        window.clearInterval(recoveryId);
+      }
+      if (loadGuardId) {
+        window.clearTimeout(loadGuardId);
+        loadGuardId = undefined;
+      }
       window.removeEventListener("kakao-sdk-loaded", onSdkLoaded);
       window.removeEventListener("kakao-sdk-error", onSdkError);
       cleanupRelayoutObserver();
