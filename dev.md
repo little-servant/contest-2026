@@ -63,6 +63,20 @@
 | `components/BusArrival.tsx` | 新 타입 기반 UI + "도착예정시간 미제공" 경고 문구 추가 |
 | `.env.local` | 템플릿 생성 (KAKAO_MAP_KEY, PUBLIC_DATA_API_KEY, BASE_URL) |
 
-## 다음 할 일
-- [ ] PUBLIC_DATA_API_KEY 발급 후 실데이터 검증 (교통약자 API avlVhclCntom 확인)
-- [ ] D7: 제출 자료 (설명서 + 시연 영상)
+## HonGa 전환 작업 로그 (2026-04-08~)
+
+| 날짜 | 내용 | 상태 |
+|------|------|------|
+| 2026-04-08 | CarePass → HonGa 브랜드 전환 (layout, 홈 역할 선택) | 완료 |
+| 2026-04-08 | /child 화면: GPS → 목적지 선택 → 카카오맵 Polyline + LibraryStatus + BusArrival | 완료 |
+| 2026-04-08 | /parent 화면: 세션코드 → 5초 폴링 → 정지/연결끊김 경보 | 완료 |
+| 2026-04-08 | /api/location/update + poll (인메모리 위치 공유) | 완료 |
+| 2026-04-08 | BottomNav → 홈/아이/부모 3탭 | 완료 |
+| 2026-04-08 | HONGA_SUBMISSION.md: 기획서 (7종 데이터 명시) | 완료 |
+
+## 다음 할 일 (Apr 9-11)
+- [ ] Apr 9: 두 기기 실제 위치 공유 테스트
+- [ ] Apr 9: Vercel NEXT_PUBLIC_DEMO_MODE=true 환경변수 설정
+- [ ] Apr 10: 데모 시나리오 리허설 (심사위원 체험 플로우)
+- [ ] Apr 10: 스크린샷 4장 캡처 → 06_demo.md 교체
+- [ ] Apr 11: 제출 서류 (참가신청서·서약서·기획서) 작성 + opendata@klid.or.kr 제출
