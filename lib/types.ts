@@ -103,3 +103,18 @@ export type ApiErrorBody = {
   message: string;
   detail?: string;
 };
+
+/** 아이 위치 공유 페이로드 */
+export type LocationPayload = {
+  code: string;
+  lat: number;
+  lng: number;
+  ts: number;
+};
+
+export type LocationPollResponse = {
+  lat: number;
+  lng: number;
+  ts: number;
+  stale: boolean;
+} | { notFound: true };

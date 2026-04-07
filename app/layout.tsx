@@ -12,11 +12,11 @@ const notoSansKR = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "케어패스 — 맞벌이 가족 아동 이동 지원 안내",
-  description: "아이돌봄 기관 찾기 + 교통약자 차량·버스·도서관 열람실 실시간 현황",
+  title: "혼자가도 괜찮아 — 아동 자립 귀가 지원",
+  description: "맞벌이 가정 아이의 안전한 하교 귀가를 돕는 실시간 위치 공유·경로 안내 서비스",
   openGraph: {
-    title: "케어패스 (CarePass)",
-    description: "맞벌이 가족을 위한 아동 이동·돌봄 통합 안내",
+    title: "혼자가도 괜찮아 (HonGa)",
+    description: "아이는 안전하게, 부모는 안심하게 — 아동 자립 귀가 지원",
     url: "https://carepass-eight.vercel.app",
     type: "website",
   },
