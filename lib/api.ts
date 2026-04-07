@@ -3,6 +3,7 @@ import type { Facility } from "./types";
 export const PUBLIC_DATA_BASE_URL =
   "https://apis.data.go.kr/B551982/tsdo_v2";
 export const NATIONAL_BUS_BASE_URL = "https://apis.data.go.kr/B551982/rte";
+export const LIBRARY_BASE_URL = "https://apis.data.go.kr/B551982/lib_v2";
 export const CHILD_CARE_BASE_URL =
   "https://apis.data.go.kr/1383000/idis/serviceInstitutionService";
 

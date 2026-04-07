@@ -76,6 +76,28 @@ export type BusApiResponse = {
   source?: "national-bus" | "no-key";
 };
 
+/** 공공도서관 열람실 현황 실시간 정보 */
+export type LibraryRoomItem = {
+  totDt?: string;       // 기준 일시
+  stdgCd?: string;      // 행정구역 코드
+  lclgvNm?: string;     // 지자체명
+  libNm?: string;       // 도서관명
+  rdrmNm?: string;      // 열람실명
+  totSeatCnt?: number;  // 총 좌석 수
+  useSeatCnt?: number;  // 사용 좌석 수
+  avlSeatCnt?: number;  // 이용 가능 좌석 수
+};
+
+export type LibraryApiResponse = {
+  error?: boolean;
+  message?: string;
+  resultCode?: string;
+  resultMsg?: string;
+  items?: LibraryRoomItem[];
+  totalCount?: number;
+  source?: "public-data" | "no-key";
+};
+
 export type ApiErrorBody = {
   error: true;
   message: string;

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BackButton } from "@/components/BackButton";
 import { BusArrival } from "@/components/BusArrival";
+import { LibraryStatus } from "@/components/LibraryStatus";
 import { TransitStatus } from "@/components/TransitStatus";
 import { TransportSummary } from "@/components/TransportSummary";
 import { loadFacilityById } from "@/lib/facilities";
@@ -58,6 +59,7 @@ export default async function RoutePage({
             <>
               <TransportSummary stdgCd={facility.stdgCd} />
               <TransitStatus stdgCd={facility.stdgCd} />
+              <LibraryStatus stdgCd={facility.stdgCd} />
               <BusArrival stdgCd={facility.stdgCd} />
             </>
           ) : (
