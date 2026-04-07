@@ -50,6 +50,21 @@ type Props = {
 
 type MapStatus = "loading" | "ready" | "fallback";
 
+function buildOsmEmbedUrl(lat: number, lng: number) {
+  const delta = 0.02;
+  const left = (lng - delta).toFixed(6);
+  const right = (lng + delta).toFixed(6);
+  const bottom = (lat - delta).toFixed(6);
+  const top = (lat + delta).toFixed(6);
+
+  return (
+    "https://www.openstreetmap.org/export/embed.html" +
+    `?bbox=${left}%2C${bottom}%2C${right}%2C${top}` +
+    "&layer=mapnik" +
+    `&marker=${lat.toFixed(6)}%2C${lng.toFixed(6)}`
+  );
+}
+
 export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
   const router = useRouter();
   const ref = useRef<HTMLDivElement | null>(null);
@@ -405,6 +420,8 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
 
   const visibleFacilities =
     status === "fallback" ? facilities.slice(0, 5) : facilities;
+  const fallbackFacility =
+    facilities.find((facility) => facility.id === activeId) ?? facilities[0];
 
   return (
     <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
@@ -428,6 +445,16 @@ export function FacilityMap({ facilities, activeId, onSelectFacility }: Props) {
                   ? fallbackReason
                   : "기관 위치를 지도에 올리는 중입니다. SDK가 준비되면 마커를 표시합니다."}
               </p>
+              {status === "fallback" && fallbackFacility ? (
+                <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                  <iframe
+                    title={`대체 지도 - ${fallbackFacility.name}`}
+                    src={buildOsmEmbedUrl(fallbackFacility.lat, fallbackFacility.lng)}
+                    className="h-44 w-full border-0"
+                    loading="lazy"
+                  />
+                </div>
+              ) : null}
             </div>
             <div className="grid gap-2">
               {visibleFacilities.map((facility) => {
