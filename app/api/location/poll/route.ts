@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 
 declare global {
   // eslint-disable-next-line no-var
-  var __locationStore: Map<string, { lat: number; lng: number; ts: number }> | undefined;
+  var __locationStore: Map<string, { lat: number; lng: number; ts: number; arrived?: boolean }> | undefined;
 }
-const store: Map<string, { lat: number; lng: number; ts: number }> =
+const store: Map<string, { lat: number; lng: number; ts: number; arrived?: boolean }> =
   (globalThis.__locationStore ??= new Map());
 
 export async function GET(request: Request) {
@@ -21,5 +21,5 @@ export async function GET(request: Request) {
   }
 
   const stale = Date.now() - entry.ts > 120_000; // 2분 이상 갱신 없으면 stale
-  return NextResponse.json({ lat: entry.lat, lng: entry.lng, ts: entry.ts, stale });
+  return NextResponse.json({ lat: entry.lat, lng: entry.lng, ts: entry.ts, stale, arrived: entry.arrived ?? false });
 }

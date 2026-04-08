@@ -8,9 +8,10 @@ type LocationData = {
   lng: number;
   ts: number;
   stale: boolean;
+  arrived?: boolean;
 };
 
-type AlertType = "stopped" | "deviated" | "disconnected" | null;
+type AlertType = "stopped" | "deviated" | "disconnected" | "arrived" | null;
 
 export default function ParentPage() {
   const [code, setCode] = useState("");
@@ -36,6 +37,11 @@ export default function ParentPage() {
 
   // 경보 판단
   const checkAlerts = useCallback((data: LocationData) => {
+    if (data.arrived) {
+      setAlert("arrived");
+      return;
+    }
+
     if (data.stale) {
       setAlert("disconnected");
       return;
@@ -53,6 +59,21 @@ export default function ParentPage() {
         return;
       }
     }
+
+    // 경로 이탈: 첫 수신 위치 기준 반경 1km 초과 시
+    const firstPos = posHistoryRef.current[0];
+    if (firstPos && !data.stale && !data.arrived) {
+      const dLat = (data.lat - firstPos.lat) * 111000;
+      const dLng = (data.lng - firstPos.lng) * 88000;
+      const straightDist = Math.sqrt(dLat ** 2 + dLng ** 2);
+      // 출발점 기준 너무 먼 곳으로 이동 (1km+) — 이탈 가능성
+      // 실제 경로 이탈보다는 '비정상 이동' 감지로 활용
+      if (straightDist > 1500 && history.length > 3) {
+        setAlert("deviated");
+        return;
+      }
+    }
+
     setAlert(null);
   }, []);
 
@@ -185,6 +206,23 @@ export default function ParentPage() {
                 desc="아이 앱이 종료되었거나 네트워크가 불안정합니다."
               />
             )}
+            {alert === "deviated" && (
+              <AlertBanner
+                color="amber"
+                icon="🧭"
+                title="이동 경로가 크게 벗어났어요"
+                desc="출발 지점 대비 비정상적으로 먼 위치가 감지되었습니다."
+              />
+            )}
+            {alert === "arrived" && (
+              <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                <span className="text-2xl">🎉</span>
+                <div>
+                  <p className="font-semibold text-emerald-800">목적지에 도착했어요!</p>
+                  <p className="mt-0.5 text-xs text-emerald-600">아이가 안전하게 도착했습니다.</p>
+                </div>
+              </div>
+            )}
             {alert === null && loc && (
               <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 px-4 py-3">
                 <span className="text-xl">✅</span>
@@ -241,8 +279,15 @@ export default function ParentPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setAlert(null)}
+                    onClick={() => setAlert("arrived")}
                     className="flex-1 rounded-xl bg-emerald-200 py-2 text-xs font-semibold text-emerald-800"
+                  >
+                    도착
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAlert(null)}
+                    className="flex-1 rounded-xl bg-teal-200 py-2 text-xs font-semibold text-teal-800"
                   >
                     정상
                   </button>

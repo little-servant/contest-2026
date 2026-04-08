@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { LibraryStatus } from "@/components/LibraryStatus";
 import { BusArrival } from "@/components/BusArrival";
+import { SignalWarning } from "@/components/SignalWarning";
+import { distanceKm } from "@/lib/api";
 
 type Destination = {
   id: string;
@@ -47,6 +49,29 @@ export default function ChildPage() {
   const [sessionCode, setSessionCode] = useState<string>("");
   const [geoError, setGeoError] = useState<string | null>(null);
   const [mapState, setMapState] = useState<MapState>("idle");
+  const [arrived, setArrived] = useState(false);
+  const [voiceText, setVoiceText] = useState<string | null>(null);
+
+  const speakVoiceGuide = useCallback(async (situation: string) => {
+    try {
+      const res = await fetch("/api/voice-guide", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ situation }),
+      });
+      if (!res.ok) return;
+      const data = (await res.json()) as { text: string };
+      setVoiceText(data.text);
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        const utt = new SpeechSynthesisUtterance(data.text);
+        utt.lang = "ko-KR";
+        utt.rate = 0.9;
+        window.speechSynthesis.speak(utt);
+      }
+    } catch {
+      // silent
+    }
+  }, []);
 
   const mapRef = useRef<HTMLDivElement>(null);
   const uploadRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -59,12 +84,12 @@ export default function ChildPage() {
 
   // 위치 업로드
   const uploadPos = useCallback(
-    async (p: { lat: number; lng: number }, code: string) => {
+    async (p: { lat: number; lng: number; arrived?: boolean }, code: string) => {
       try {
         await fetch("/api/location/update", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code, lat: p.lat, lng: p.lng, ts: Date.now() }),
+          body: JSON.stringify({ code, lat: p.lat, lng: p.lng, ts: Date.now(), arrived: p.arrived }),
         });
       } catch {
         // silent
@@ -92,11 +117,24 @@ export default function ChildPage() {
           };
           posRef.current = next;
           setPos(next);
+
+          // 도착 감지: 목적지까지 50m 미만
+          const dist = distanceKm(next, destination);
+          if (dist < 0.05) {
+            setArrived(true);
+            void uploadPos({ ...next, arrived: true }, code);
+            void speakVoiceGuide(`${destination.label}에 도착했습니다`);
+            if (uploadRef.current) {
+              clearInterval(uploadRef.current);
+              uploadRef.current = null;
+            }
+            return;
+          }
         }
         uploadPos(next, code);
       }, 10000);
     },
-    [uploadPos],
+    [uploadPos, speakVoiceGuide],
   );
 
   useEffect(() => () => { if (uploadRef.current) clearInterval(uploadRef.current); }, []);
@@ -163,6 +201,26 @@ export default function ChildPage() {
       });
 
       setMapState("ready");
+
+      // 아동안전지킴이집 마커 오버레이 (비동기)
+      void (async () => {
+        try {
+          if (!kakao.maps) return;
+          const res = await fetch("/api/facilities");
+          if (!res.ok) return;
+          const json = (await res.json()) as {
+            items?: Array<{ lat: number; lng: number; name: string }>;
+          };
+          const facilities = json.items ?? [];
+          for (const f of facilities.slice(0, 20)) {
+            if (!f.lat || !f.lng || !kakao.maps) continue;
+            const fLatLng = new kakao.maps.LatLng(f.lat, f.lng);
+            new kakao.maps.Marker({ map, position: fLatLng });
+          }
+        } catch {
+          // 시설 마커 실패해도 지도는 정상 표시
+        }
+      })();
     });
   }, [step, dest]); // pos 제외: 초기 1회만 그림
 
@@ -279,6 +337,20 @@ export default function ChildPage() {
               </ul>
             </div>
 
+            {/* 도착 알림 */}
+            {arrived && (
+              <div className="rounded-3xl bg-emerald-500 p-5 text-center shadow-lg">
+                <p className="text-3xl">🎉</p>
+                <p className="mt-2 text-lg font-bold text-white">
+                  {dest.icon} {dest.label}에 도착했어요!
+                </p>
+                <p className="mt-1 text-sm text-emerald-100">잘했어요! 부모님께 알림이 전송됐어요.</p>
+              </div>
+            )}
+
+            {/* 교통안전 신호등 경보 */}
+            <SignalWarning stdgCd={dest.stdgCd} />
+
             {/* 도서관 선택 시 열람실 현황 */}
             {dest.id === "library" && (
               <LibraryStatus stdgCd={dest.stdgCd} />
@@ -286,6 +358,26 @@ export default function ChildPage() {
 
             {/* 버스 실시간 정보 */}
             <BusArrival stdgCd={dest.stdgCd} />
+
+            {/* AI 음성 안내 (Gemini) */}
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  void speakVoiceGuide(
+                    `아이가 ${dest.label} 방향으로 이동 중입니다. 안전하게 귀가 중입니다.`,
+                  )
+                }
+                className="w-full rounded-3xl border-2 border-emerald-200 bg-white py-4 text-sm font-semibold text-emerald-700 shadow-sm transition active:scale-95"
+              >
+                🔊 AI 음성 안내 받기
+              </button>
+              {voiceText && (
+                <div className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                  💬 {voiceText}
+                </div>
+              )}
+            </div>
 
             {pos && (
               <div className="rounded-2xl bg-slate-100 p-3 text-center text-xs text-slate-500">

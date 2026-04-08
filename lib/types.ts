@@ -110,6 +110,7 @@ export type LocationPayload = {
   lat: number;
   lng: number;
   ts: number;
+  arrived?: boolean;
 };
 
 export type LocationPollResponse = {
@@ -117,4 +118,23 @@ export type LocationPollResponse = {
   lng: number;
   ts: number;
   stale: boolean;
+  arrived?: boolean;
 } | { notFound: true };
+
+/** 교통안전 실시간 신호등 정보 */
+export type SignalItem = {
+  sigId?: string;    // 신호등 ID
+  crossNm?: string;  // 교차로명
+  lat?: number;      // 위도
+  lng?: number;      // 경도
+  sigStt?: string;   // 현재 신호 (RED / GREEN / YELLOW)
+  remTime?: number;  // 잔여 시간 (초)
+  dangerYn?: string; // 위험 여부 (Y/N)
+};
+
+export type SignalApiResponse = {
+  items?: SignalItem[];
+  source?: "public-data" | "demo" | "no-key";
+  error?: boolean;
+  message?: string;
+};
