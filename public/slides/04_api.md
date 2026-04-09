@@ -1,25 +1,18 @@
-# 활용 공공 API
+# 활용 API
 
-## 1. 교통약자 이동지원 현황 실시간 정보
+## 1. HonGa 내부 API
 
-- 출처: 공공데이터포털 / 행정안전부 한국지역정보개발원
-- Base URL: `https://apis.data.go.kr/B551982/tsdo_v2`
-- 엔드포인트: `/info_vehicle_use_v2`
-- 활용 방식: 가용 차량 수, 운행 차량 수, 예약/대기 건수 확인
+- `POST /api/location/update`: 아이 위치/도착 상태 업로드 (10초 주기)
+- `GET /api/location/poll?code=####`: 부모 모니터링 위치 조회 (5초 폴링)
+- `GET /api/library?stdgCd=...`: 도서관 열람실 현황 조회
+- `GET /api/bus?stdgCd=...`: 전국 초정밀 버스 노선·차량 위치 조회
+- `GET /api/signal?stdgCd=...`: 교통안전 실시간 신호등 상태 조회
+- `GET /api/facilities`: 아동 보호시설 좌표 조회
+- `POST /api/voice-guide`: Gemini 기반 아동 친화 안내 문구 생성 (실패 시 fallback)
 
-## 2. 전국 초정밀 버스 위치 실시간 정보
+## 2. 외부 공공데이터 API
 
-- 출처: 공공데이터포털 / 행정안전부 한국지역정보개발원
-- Base URL: `https://apis.data.go.kr/B551982/rte`
-- 엔드포인트:
-  - `/mst_info`
-  - `/ps_info`
-  - `/rtm_loc_info`
-- 활용 방식: 노선 기본 정보와 실시간 버스 위치 확인
-
-## 3. 아이돌봄 서비스제공기관 정보 서비스
-
-- 출처: 공공데이터포털 / 성평등가족부
-- Base URL: `https://apis.data.go.kr/1383000/idis/serviceInstitutionService`
-- 엔드포인트: `/getServiceInstitutionList`
-- 활용 방식: 기관명, 주소, 위경도, 연락처 조회
+- `https://apis.data.go.kr/B551982/rte` (전국 초정밀 버스 실시간 정보)
+- `https://apis.data.go.kr/B551982/lib_v2` (공공도서관 열람실 현황)
+- `https://apis.data.go.kr/B551982/tsi_v2` (교통안전 실시간 신호등 정보)
+- `https://apis.data.go.kr/1383000/idis/serviceInstitutionService` (아이돌봄 서비스 기관)

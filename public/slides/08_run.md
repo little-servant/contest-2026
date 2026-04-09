@@ -1,4 +1,10 @@
-# 실행 및 배포 방법
+# 실행 및 검증
+
+## 배포 URL
+
+- 홈: `https://carepass-eight.vercel.app`
+- 아이 화면: `https://carepass-eight.vercel.app/child`
+- 부모 화면: `https://carepass-eight.vercel.app/parent`
 
 ## 로컬 실행
 
@@ -7,24 +13,15 @@ npm install
 npm run dev
 ```
 
-- 기본 주소: `http://localhost:3000`
-
 ## 환경 변수
 
 ```env
 NEXT_PUBLIC_KAKAO_MAP_KEY=
 PUBLIC_DATA_API_KEY=
+GEMINI_API_KEY=
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_DEMO_MODE=true
 ```
-
-## 배포
-
-- 프레임워크: Next.js
-- 설정 파일: `vercel.json`
-- 배포 전 확인:
-  - `NEXT_PUBLIC_KAKAO_MAP_KEY`
-  - `PUBLIC_DATA_API_KEY`
-  - `NEXT_PUBLIC_BASE_URL`
 
 ## 검증 명령
 

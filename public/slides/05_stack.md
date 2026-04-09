@@ -1,23 +1,19 @@
-# 기술 스택과 폴백 설계
+# 기술 스택
 
-## 기술 스택
+## Frontend / Backend
 
 - Next.js 16 App Router
-- React 19
-- TypeScript
+- React 19 + TypeScript
 - Tailwind CSS
-- SWR
+- SWR (주기 폴링/캐싱)
 
-## 폴백 설계
+## 지도 / 데이터 / AI
 
-- `PUBLIC_DATA_API_KEY`가 없을 때:
-  - 교통약자 API는 `200` + `source: "no-key"` 반환
-  - 버스 API도 no-key 상태를 명시적으로 반환
-  - UI는 amber 배너와 정적 JSON 폴백으로 흐름을 유지
-- `NEXT_PUBLIC_KAKAO_MAP_KEY`가 없을 때:
-  - 지도 대신 목록형 폴백 UI 제공
+- Kakao Maps SDK (아이/부모 지도 화면)
+- 공공데이터포털 API (버스, 도서관, 신호등, 보호시설)
+- Gemini API (`gemini-2.0-flash`) + Web Speech API
 
-## 의미
+## 데모 안정화 설계
 
-- 심사 환경에서 API 키가 빠져도 앱이 깨지지 않는다.
-- 실데이터 연결 전/후 상태를 사용자에게 명확히 보여줄 수 있다.
+- API 키 미설정/응답 실패 시 `no-key`, `demo`, `fallback` 소스로 흐름 유지
+- 부모-아이 연동은 4자리 세션코드 + 인메모리 스토어로 즉시 체험 가능

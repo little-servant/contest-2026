@@ -162,7 +162,9 @@ export default function ParentPage() {
         {/* 코드 입력 */}
         {!connected && (
           <div className="flex flex-col items-center gap-6 pt-12 text-center">
-            <span className="text-8xl">🔑</span>
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-sky-100">
+              <span className="text-4xl">🔑</span>
+            </div>
             <div>
               <h2 className="text-2xl font-bold text-slate-900">아이 코드 입력</h2>
               <p className="mt-2 text-sm text-slate-500">아이 앱에 표시된 4자리 숫자를 입력해주세요</p>

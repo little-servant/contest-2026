@@ -30,7 +30,7 @@ export default function HomePage() {
             href="/child"
             className="flex flex-col items-center gap-3 rounded-3xl border-2 border-emerald-200 bg-emerald-50 px-4 py-8 text-center transition hover:border-emerald-400 hover:bg-emerald-100 active:scale-95"
           >
-            <span className="text-5xl">🧒</span>
+            <span className="text-4xl">🧒</span>
             <div>
               <p className="text-lg font-bold text-emerald-800">아이로 시작</p>
               <p className="mt-1 text-xs text-emerald-600">목적지 선택하고<br />안내 받기</p>
@@ -41,7 +41,7 @@ export default function HomePage() {
             href="/parent"
             className="flex flex-col items-center gap-3 rounded-3xl border-2 border-sky-200 bg-sky-50 px-4 py-8 text-center transition hover:border-sky-400 hover:bg-sky-100 active:scale-95"
           >
-            <span className="text-5xl">👨‍👩‍👧</span>
+            <span className="text-4xl">👨‍👩‍👧</span>
             <div>
               <p className="text-lg font-bold text-sky-800">부모로 모니터링</p>
               <p className="mt-1 text-xs text-sky-600">아이 위치<br />실시간 확인</p>

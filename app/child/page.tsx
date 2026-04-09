@@ -247,7 +247,9 @@ export default function ChildPage() {
         {/* Step 1: 위치 확인 */}
         {step === "locate" && (
           <div className="flex flex-col items-center gap-6 pt-12 text-center">
-            <span className="text-8xl">📍</span>
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
+              <span className="text-4xl">📍</span>
+            </div>
             <div>
               <h2 className="text-2xl font-bold text-slate-900">지금 어디 있어?</h2>
               <p className="mt-2 text-sm text-slate-500">현재 위치를 확인할게!</p>
@@ -280,9 +282,9 @@ export default function ChildPage() {
                   key={d.id}
                   type="button"
                   onClick={() => selectDest(d)}
-                  className="flex items-center gap-5 rounded-3xl border-2 border-slate-200 bg-white p-6 text-left shadow-sm transition hover:border-emerald-400 active:scale-95"
+                  className="flex items-center gap-4 rounded-3xl border-2 border-slate-200 bg-white p-5 text-left shadow-sm transition hover:border-emerald-400 active:scale-95"
                 >
-                  <span className="text-5xl">{d.icon}</span>
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-2xl">{d.icon}</span>
                   <div>
                     <p className="text-xl font-bold text-slate-900">{d.label}</p>
                     <p className="text-xs text-slate-400">여기로 갈게요</p>
