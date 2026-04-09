@@ -37,7 +37,7 @@ const DESTINATIONS: Destination[] = [
 
 // 데모 모드 출발 좌표 (강남구 학교)
 const DEMO_START = { lat: 37.5085, lng: 127.0245 };
-const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+const DEMO_MODE = true;
 
 type Step = "locate" | "select" | "navigate";
 type MapState = "idle" | "ready" | "error";
