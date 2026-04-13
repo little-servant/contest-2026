@@ -31,13 +31,13 @@ const DESTINATIONS: Destination[] = [
     icon: "📚",
     lat: 37.5172,
     lng: 127.0473,
-    stdgCd: "1100000000",
+    stdgCd: "1168000000", // 강남구 — 데모 출발지(강남) 기준 구체적 코드
   },
 ];
 
 // 데모 모드 출발 좌표 (강남구 학교)
 const DEMO_START = { lat: 37.5085, lng: 127.0245 };
-const DEMO_MODE = true;
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
 type Step = "locate" | "select" | "navigate";
 type MapState = "idle" | "ready" | "error";

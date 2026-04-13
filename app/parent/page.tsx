@@ -261,7 +261,7 @@ export default function ParentPage() {
             )}
 
             {/* 데모 버튼 */}
-            {true && (
+            {process.env.NEXT_PUBLIC_DEMO_MODE === "true" && (
               <div className="rounded-2xl bg-amber-50 p-4">
                 <p className="mb-2 text-xs font-semibold text-amber-700">🎮 데모 시뮬레이션</p>
                 <div className="flex gap-2">

@@ -1,14 +1,29 @@
 import { NextResponse } from "next/server";
 import type { LocationPayload } from "@/lib/types";
 
-// 인메모리 스토어 (데모용 — Vercel 함수 lifecycle 내 유지)
-// 프로덕션에서는 Vercel KV 또는 Redis로 교체
+type LocationEntry = { lat: number; lng: number; ts: number; arrived?: boolean };
+
+// 인메모리 fallback (KV 미설정 환경용)
 declare global {
   // eslint-disable-next-line no-var
-  var __locationStore: Map<string, { lat: number; lng: number; ts: number; arrived?: boolean }> | undefined;
+  var __locationStore: Map<string, LocationEntry> | undefined;
 }
-const store: Map<string, { lat: number; lng: number; ts: number; arrived?: boolean }> =
+const store: Map<string, LocationEntry> =
   (globalThis.__locationStore ??= new Map());
+
+async function setLocation(code: string, entry: LocationEntry): Promise<void> {
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    const { kv } = await import("@vercel/kv");
+    await kv.set(`loc:${code}`, entry, { ex: 300 }); // 5분 TTL
+    return;
+  }
+  store.set(code, entry);
+  // 5분 이상 된 항목 정리
+  const cutoff = Date.now() - 300_000;
+  for (const [k, v] of store) {
+    if (v.ts < cutoff) store.delete(k);
+  }
+}
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -31,13 +46,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: true, message: "Invalid payload" }, { status: 400 });
   }
 
-  store.set(code, { lat, lng, ts, arrived: arrived === true });
-
-  // 5분 이상 된 항목 정리
-  const cutoff = Date.now() - 300_000;
-  for (const [k, v] of store) {
-    if (v.ts < cutoff) store.delete(k);
+  try {
+    await setLocation(code, { lat, lng, ts, arrived: arrived === true });
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: true, message: "Storage error" }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true });
 }

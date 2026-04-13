@@ -70,7 +70,7 @@ export function SignalWarning({ stdgCd }: { stdgCd: string }) {
   useEffect(() => {
     const t = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(t);
-  }, [now]);
+  }, []);
 
   if (isLoading) return <LoadingFallback label="교통안전 신호등 정보 확인 중" />;
   if (error) return null;
