@@ -35,8 +35,8 @@ export function TransportSummary({ stdgCd }: Props) {
 
   if (isInitialLoading) {
     return (
-      <section className="rounded-2xl bg-white p-4 shadow-sm">
-        <p className="text-sm font-semibold text-slate-500">이동 수단 요약</p>
+      <section className="panel-surface rounded-[20px] p-4">
+        <p className="text-sm font-semibold text-[color:var(--text-secondary)]">이동 수단 요약</p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <SummarySkeleton />
           <SummarySkeleton />
@@ -47,7 +47,7 @@ export function TransportSummary({ stdgCd }: Props) {
 
   if (transit.data?.source === "no-key") {
     return (
-      <p className="text-sm text-amber-600 bg-amber-50 rounded-xl px-4 py-3">
+      <p className="text-sm text-amber-700 bg-amber-50 rounded-[14px] px-4 py-3 border border-amber-200">
         PUBLIC_DATA_API_KEY 미설정 — 실데이터 연동 전 상태입니다.
       </p>
     );
@@ -63,8 +63,8 @@ export function TransportSummary({ stdgCd }: Props) {
 
   if (transit.data && bus.data && isTransitEmpty && isBusEmpty) {
     return (
-      <section className="rounded-2xl bg-white p-4 shadow-sm">
-        <p className="text-sm font-semibold text-slate-500">이동 수단 요약</p>
+      <section className="panel-surface rounded-[20px] p-4">
+        <p className="text-sm font-semibold text-[color:var(--text-secondary)]">이동 수단 요약</p>
         <div className="mt-4">
           <EmptyState
             title="실시간 이동 데이터 없음"
@@ -80,8 +80,8 @@ export function TransportSummary({ stdgCd }: Props) {
   const busCard = buildBusCard(bus.data, bus.error);
 
   return (
-    <section className="rounded-2xl bg-white p-4 shadow-sm">
-      <p className="text-sm font-semibold text-slate-500">이동 수단 요약</p>
+    <section className="panel-surface rounded-[20px] p-4">
+      <p className="text-sm font-semibold text-[color:var(--text-secondary)]">이동 수단 요약</p>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <SummaryCard title="교통약자 차량" body={vehicleCard} />
         <SummaryCard title="버스 운행" body={busCard} />
@@ -92,7 +92,7 @@ export function TransportSummary({ stdgCd }: Props) {
 
 function SummarySkeleton() {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+    <div className="panel-line rounded-[20px] p-4">
       <Skeleton className="h-3 w-24 rounded-full" />
       <Skeleton className="mt-3 h-6 w-3/4 rounded-full" />
       <Skeleton className="mt-2 h-4 w-full rounded-full" />
@@ -180,12 +180,12 @@ function SummaryCard({
   body: { headline: string; detail: string };
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+    <div className="panel-line rounded-[20px] p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-secondary)]">
         {title}
       </p>
-      <h3 className="mt-2 text-base font-semibold text-slate-950">{body.headline}</h3>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{body.detail}</p>
+      <h3 className="mt-2 text-base font-semibold text-[color:var(--text-primary)]">{body.headline}</h3>
+      <p className="mt-2 text-sm leading-6 text-[color:var(--text-secondary)]">{body.detail}</p>
     </div>
   );
 }

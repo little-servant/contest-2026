@@ -42,7 +42,7 @@ export function BusArrival({ stdgCd }: { stdgCd?: string }) {
 
   if (!stdgCd) {
     return (
-      <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
+      <div className="rounded-[24px] border border-dashed border-black/10 bg-white/60 p-4 text-sm text-[color:var(--text-secondary)]">
         <p>이 기관은 버스 실시간 정보를 지원하지 않습니다.</p>
         <Link href="/facilities" className="mt-2 inline-block underline">
           다른 기관 보기 →
@@ -61,7 +61,7 @@ export function BusArrival({ stdgCd }: { stdgCd?: string }) {
 
   if (error || data?.error) {
     return (
-      <div className="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+      <div className="rounded-[24px] border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
         <p className="font-medium">버스 API 오류</p>
         <p className="mt-2">{data?.message ?? "응답을 불러오지 못했습니다."}</p>
       </div>
@@ -73,7 +73,7 @@ export function BusArrival({ stdgCd }: { stdgCd?: string }) {
 
   if (!route && !position) {
     return (
-      <div className="rounded-2xl bg-white p-4 shadow-sm">
+      <div className="panel-surface rounded-[20px] p-4">
         <EmptyState
           title="버스 실시간 정보 없음"
           description="선택한 지역의 초정밀 버스 노선/위치 응답이 비어 있습니다."
@@ -84,13 +84,13 @@ export function BusArrival({ stdgCd }: { stdgCd?: string }) {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm">
+    <div className="panel-surface rounded-[20px] p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-700">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--accent-secondary)]">
             Bus
           </p>
-          <p className="mt-2 text-base font-semibold text-slate-900">
+          <p className="mt-2 text-base font-semibold text-[color:var(--text-primary)]">
             {route?.rteNo ?? position?.rteNo ?? "초정밀 버스 노선"}
           </p>
         </div>
@@ -123,7 +123,7 @@ export function BusArrival({ stdgCd }: { stdgCd?: string }) {
         />
         <Info label="도착예정시간" value="현재 데이터셋 미제공" />
       </div>
-      <p className="mt-3 text-xs text-slate-500">
+      <p className="mt-3 text-xs text-[color:var(--text-secondary)]">
         수집 시각 {formatCollectedAt(position?.gthrDt, lastUpdatedAt)}
       </p>
     </div>
@@ -140,9 +140,9 @@ function formatCoordinates(lat?: string, lot?: string) {
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="mt-1 text-base font-semibold text-slate-900">{value}</p>
+    <div className="panel-line rounded-[20px] px-3 py-3">
+      <p className="text-xs text-[color:var(--text-secondary)]">{label}</p>
+      <p className="mt-1 text-base font-semibold text-[color:var(--text-primary)]">{value}</p>
     </div>
   );
 }
@@ -158,14 +158,14 @@ function RefreshIndicator({
 }) {
   if (isValidating) {
     return (
-      <span className="text-xs font-medium text-emerald-600 animate-pulse">
+      <span className="text-xs font-medium text-[color:var(--accent-primary)] animate-pulse">
         ● 갱신 중
       </span>
     );
   }
 
   return (
-    <span className="text-xs text-slate-500">
+    <span className="text-xs text-[color:var(--text-secondary)]">
       {formatRefreshTime(lastUpdatedAt, now)}
     </span>
   );

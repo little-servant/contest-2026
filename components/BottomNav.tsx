@@ -41,7 +41,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-slate-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-black/6 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl">
       {TABS.map((tab) => {
         const Icon = tab.icon;
         const isActive =
@@ -51,8 +51,8 @@ export function BottomNav() {
 
         return (
           <Link key={tab.href} href={tab.href} className="flex flex-1 flex-col items-center py-2">
-            <span className={`flex flex-col items-center gap-1 rounded-xl px-4 py-1.5 text-xs font-medium transition-colors duration-200 ${isActive ? "bg-teal-50 text-teal-700" : "bg-transparent text-slate-400"}`}>
-              <Icon className="h-[18px] w-[18px]" />
+            <span className={`flex flex-col items-center gap-1 rounded-[14px] px-4 py-1.5 text-xs font-medium transition-colors duration-200 ${isActive ? "bg-[color:var(--accent-primary)]/12 text-[color:var(--accent-primary)]" : "bg-transparent text-[color:var(--text-secondary)]"}`}>
+              <Icon className="h-5 w-5" />
               {tab.label}
             </span>
           </Link>

@@ -52,7 +52,7 @@ export function TransitStatus({ stdgCd }: { stdgCd: string }) {
 
   if (error || data?.error) {
     return (
-      <div className="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+      <div className="rounded-[24px] border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
         <p className="font-medium">교통약자 API 오류</p>
         <p className="mt-2">{data?.message ?? "응답을 불러오지 못했습니다."}</p>
       </div>
@@ -63,7 +63,7 @@ export function TransitStatus({ stdgCd }: { stdgCd: string }) {
 
   if (!item) {
     return (
-      <div className="rounded-2xl bg-white p-4 shadow-sm">
+      <div className="panel-surface rounded-[20px] p-4">
         <EmptyState
           title="교통약자 차량 정보 없음"
           description="선택한 지역의 차량 현황 응답이 비어 있습니다. 잠시 후 다시 확인해 주세요."
@@ -74,13 +74,13 @@ export function TransitStatus({ stdgCd }: { stdgCd: string }) {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm">
+    <div className="panel-surface rounded-[20px] p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-700">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--accent-primary)]">
             Transit
           </p>
-          <p className="mt-2 text-base font-semibold text-slate-900">
+          <p className="mt-2 text-base font-semibold text-[color:var(--text-primary)]">
             {item?.cntrNm ?? "교통약자 이동지원센터"}
           </p>
         </div>
@@ -96,10 +96,10 @@ export function TransitStatus({ stdgCd }: { stdgCd: string }) {
         <Stat label="예약 건수" value={item?.rsvtNocs ?? "-"} />
         <Stat label="대기 건수" value={item?.wtngNocs ?? "-"} />
       </div>
-      <p className="mt-3 text-xs text-slate-500">
+      <p className="mt-3 text-xs text-[color:var(--text-secondary)]">
         {item?.totDt ? `기준 시각 ${item.totDt}` : "실시간 응답"}
       </p>
-      <p className="mt-3 text-xs text-slate-500">
+      <p className="mt-3 text-xs text-[color:var(--text-secondary)]">
         교통약자 차량 예약:{" "}
         <a href="tel:1588-4388" className="underline">
           1588-4388
@@ -112,9 +112,9 @@ export function TransitStatus({ stdgCd }: { stdgCd: string }) {
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="mt-1 text-base font-semibold text-slate-900">{value}</p>
+    <div className="panel-line rounded-[20px] px-3 py-3">
+      <p className="text-xs text-[color:var(--text-secondary)]">{label}</p>
+      <p className="mt-1 text-base font-semibold text-[color:var(--text-primary)]">{value}</p>
     </div>
   );
 }
@@ -130,14 +130,14 @@ function RefreshIndicator({
 }) {
   if (isValidating) {
     return (
-      <span className="text-xs font-medium text-emerald-600 animate-pulse">
+      <span className="text-xs font-medium text-[color:var(--accent-primary)] animate-pulse">
         ● 갱신 중
       </span>
     );
   }
 
   return (
-    <span className="text-xs text-slate-500">
+    <span className="text-xs text-[color:var(--text-secondary)]">
       {formatRefreshTime(lastUpdatedAt, now)}
     </span>
   );

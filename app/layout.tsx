@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans_KR } from "next/font/google";
+import { Outfit } from "next/font/google";
 import type { ReactNode } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { KakaoSdkScript } from "@/components/KakaoSdkScript";
 import "./globals.css";
 
-const notoSansKR = Noto_Sans_KR({
-  variable: "--font-noto-sans-kr",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -38,9 +38,9 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${notoSansKR.variable} h-full antialiased`}
+      className={`${outfit.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-[color:var(--background)] text-[color:var(--foreground)]">
+      <body className="min-h-full bg-[color:var(--bg-primary)] text-[color:var(--text-primary)]">
         {kakaoKey ? (
           <KakaoSdkScript kakaoKey={kakaoKey} />
         ) : null}
