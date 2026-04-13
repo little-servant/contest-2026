@@ -40,7 +40,7 @@ export default function RootLayout({
       lang="ko"
       className={`${outfit.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-[color:var(--bg-primary)] text-[color:var(--text-primary)]">
+      <body className="min-h-full text-[color:var(--text)]">
         {kakaoKey ? (
           <KakaoSdkScript kakaoKey={kakaoKey} />
         ) : null}
