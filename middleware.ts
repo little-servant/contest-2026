@@ -23,12 +23,26 @@ function shouldForceCanonicalHost(host: string, canonicalHost: string) {
   return host.endsWith(".vercel.app");
 }
 
-export function middleware(request: NextRequest) {
+const SECURITY_HEADERS: Record<string, string> = {
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "geolocation=(self), camera=(), microphone=()",
+};
+
+function applySecurityHeaders(response: NextResponse): NextResponse {
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(key, value);
+  }
+  return response;
+}
+
+export function proxy(request: NextRequest) {
   const canonicalHost = getCanonicalHost();
   const host = normalizeHost(request.headers.get("host"));
 
   if (!shouldForceCanonicalHost(host, canonicalHost)) {
-    return NextResponse.next();
+    return applySecurityHeaders(NextResponse.next());
   }
 
   const redirectUrl = request.nextUrl.clone();

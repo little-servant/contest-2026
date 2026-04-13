@@ -23,15 +23,28 @@ export async function GET(request: Request) {
 
     const url = new URL(request.url);
     const stdgCd = url.searchParams.get("stdgCd") || "4311000000";
+    const rawNumOfRows = Number(url.searchParams.get("numOfRows")) || 10;
+    const numOfRows = Math.min(Math.max(1, rawNumOfRows), 50).toString();
     const apiUrl = buildUrl(LIBRARY_BASE_URL, "/info_readingroom_use_v2", {
       serviceKey: apiKey,
       pageNo: url.searchParams.get("pageNo") || "1",
-      numOfRows: url.searchParams.get("numOfRows") || "10",
+      numOfRows,
       type: "json",
       stdgCd,
     });
 
     const response = await fetchWithTimeout(apiUrl, { cache: "no-store" }, 10_000);
+
+    if (!response.ok) {
+      return NextResponse.json<ApiErrorBody>(
+        {
+          error: true,
+          message: `도서관 API 오류 (HTTP ${response.status})`,
+        },
+        { status: response.status },
+      );
+    }
+
     const payload = await safeJson(response);
     const root =
       typeof payload.response === "object" && payload.response !== null
@@ -81,17 +94,6 @@ export async function GET(request: Request) {
       items: normalized,
       source: "public-data",
     };
-
-    if (!response.ok) {
-      return NextResponse.json<ApiErrorBody>(
-        {
-          error: true,
-          message: `Library API returned HTTP ${response.status}`,
-          detail: JSON.stringify(result),
-        },
-        { status: response.status },
-      );
-    }
 
     return NextResponse.json(result);
   } catch (error) {

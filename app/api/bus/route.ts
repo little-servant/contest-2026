@@ -31,11 +31,14 @@ export async function GET(request: Request) {
     const stdgCd = url.searchParams.get("stdgCd") || "";
     const rteNo = url.searchParams.get("rteNo") || "";
 
+    const rawNumOfRows = Number(url.searchParams.get("numOfRows")) || 20;
+    const numOfRows = Math.min(Math.max(1, rawNumOfRows), 50).toString();
+
     const commonParams: Record<string, string> = {
       serviceKey: apiKey,
       type: "json",
       pageNo: "1",
-      numOfRows: "20",
+      numOfRows,
       ...(stdgCd ? { stdgCd } : {}),
       ...(rteNo ? { rteNo } : {}),
     };
