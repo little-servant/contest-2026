@@ -37,7 +37,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const canonicalHost = getCanonicalHost();
   const host = normalizeHost(request.headers.get("host"));
 
